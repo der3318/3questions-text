@@ -1,0 +1,12 @@
+.gradle
+**/build/
+!src/**/build/
+
+# ignore gradle GUI config
+gradle-app.setting
+
+# avoid ignoring gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# cache of project
+.gradletasknamecache
