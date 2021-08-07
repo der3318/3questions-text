@@ -1,0 +1,34 @@
+apply plugin: "java"
+apply plugin: "java-library"
+apply plugin: "com.github.johnrengelman.shadow"
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    // compile group: "org.testng", name: "testng", version: "6.9.6"
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.1"
+    }
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "Application"
+    }
+}
+
+archivesBaseName = "3qtxt"
+version = "1.0"
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
