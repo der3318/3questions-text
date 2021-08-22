@@ -7,7 +7,7 @@ repositories {
 }
 
 dependencies {
-    // compile group: "org.testng", name: "testng", version: "6.9.6"
+    compile group: "com.codahale", name: "shamir", version: "0.7.0"
     implementation fileTree(dir: "libs", include: ["*.jar"])
 }
 

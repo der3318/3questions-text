@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -13,6 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -34,6 +36,8 @@ public class AppFrame extends JFrame {
     private List<JTextField> questionList;
     private List<JPasswordField> answerList;
     private JTextArea secretText;
+    private JLabel info;
+    private AppState appState;
 
     public AppFrame(String title) {
         super(title);
@@ -52,7 +56,9 @@ public class AppFrame extends JFrame {
         this.setupSecretText();
         this.addDecryptButton();
         this.addScrollPanel();
+        this.setupAppInfo();
         this.addIconIfExist();
+        this.appState = new AppState();
     }
 
     private void setupFont() {
@@ -63,7 +69,7 @@ public class AppFrame extends JFrame {
         this.chooser = new JFileChooser();
         this.chooser.setMultiSelectionEnabled(false);
         this.chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        this.chooser.setFileFilter(new FileNameExtensionFilter(Constants.FILE_EXTENSION, Constants.FILE_DESC));
+        this.chooser.setFileFilter(new FileNameExtensionFilter(Constants.FILE_DESC, Constants.FILE_EXTENSION));
     }
 
     private void addMenuItemsAndMenuBar() {
@@ -72,15 +78,24 @@ public class AppFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 AppFrame.this.chooser.showOpenDialog(AppFrame.this);
                 File file = chooser.getSelectedFile();
-                System.out.println(file.getAbsolutePath());
+                AppFrame.this.appState.readFromFile(file, AppFrame.this.questionList, AppFrame.this.secretText);
             }
         });
         JMenuItem save = new JMenuItem(new AbstractAction(Constants.MENU_SAVE_DESC) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AppFrame.this.chooser.showSaveDialog(AppFrame.this);
-                File file = chooser.getSelectedFile();
-                System.out.println(file.getAbsolutePath());
+                AppFrame.this.info.setText(Constants.INFO_CLEAN);
+                if (AppFrame.this.appState.canSave(AppFrame.this.answerList, AppFrame.this.secretText)) {
+                    AppFrame.this.chooser.showSaveDialog(AppFrame.this);
+                    File file = chooser.getSelectedFile();
+                    if (!file.toString().toLowerCase().endsWith("." + Constants.FILE_EXTENSION)) {
+                        file = new File(file.toString() + "." + Constants.FILE_EXTENSION);
+                    }
+                    AppFrame.this.appState.saveToFile(file, AppFrame.this.questionList, AppFrame.this.answerList, AppFrame.this.secretText);
+                }
+                else {
+                    AppFrame.this.info.setText(String.format(Constants.INFO_FORMAT, Constants.MENU_SAVE_HINT));
+                }
             }
         });
         JMenu menu = new JMenu(Constants.MENU_FILE_DESC);
@@ -118,7 +133,13 @@ public class AppFrame extends JFrame {
         decrypt.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                secretText.setText(String.format("%s", System.currentTimeMillis()));
+                AppFrame.this.info.setText(Constants.INFO_CLEAN);
+                if (AppFrame.this.appState.canDecrypt(AppFrame.this.answerList)) {
+                    AppFrame.this.appState.decrypt(AppFrame.this.answerList, AppFrame.this.secretText);
+                }
+                else {
+                    AppFrame.this.info.setText(String.format(Constants.INFO_FORMAT, Constants.DECRYPT_HINT));
+                }
             }
         });
         decrypt.setFont(this.font);
@@ -134,6 +155,13 @@ public class AppFrame extends JFrame {
         panel.setBorder(title);
         panel.add(scroll);
         this.container.add(panel);
+    }
+
+    private void setupAppInfo() {
+        this.info = new JLabel(Constants.INFO_CLEAN);
+        this.info.setFont(this.font);
+        this.info.setForeground(Color.RED);
+        this.container.add(this.info);
     }
 
     private void addIconIfExist() {
