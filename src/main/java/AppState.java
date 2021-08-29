@@ -23,9 +23,19 @@ public class AppState {
         this.encryptedKey1 = "not yet ready";
         this.encryptedKey2 = "not yet ready";
         this.encryptedKey3 = "not yet ready";
-        this.sharedKey1 = "randomly get one using scheme.split(secret)[0]";
-        this.sharedKey2 = "randomly get one using scheme.split(secret)[1]";
-        this.sharedKey3 = "randomly get one using scheme.split(secret)[2]";
+        String secret = EncryptionManager.generateRandomString();
+        List<String> threeShares = EncryptionManager.getThreeSplitShares(secret);
+        this.sharedKey1 = threeShares.get(0);
+        this.sharedKey2 = threeShares.get(1);
+        this.sharedKey3 = threeShares.get(2);
+        /* testing */
+        System.out.println(secret);
+        System.out.println(EncryptionManager.computeSecretFromShares(1, sharedKey1, 2, sharedKey2));
+        System.out.println(EncryptionManager.computeSecretFromShares(2, sharedKey2, 3, sharedKey3));
+        System.out.println(EncryptionManager.computeSecretFromShares(1, sharedKey1, 3, sharedKey3));
+        System.out.println(sharedKey1);
+        System.out.println(EncryptionManager.decrypt(EncryptionManager.encrypt(sharedKey1, "xyz"), "xyz"));
+        /* testing */
         this.encryptedContent = "not yet ready";
         this.canDecrypt = false;
         this.canSave = true;

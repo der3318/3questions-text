@@ -25,4 +25,6 @@ public class Constants {
     public static final String  INFO_FORMAT     = "[INFO]    %s";
     public static final String  INFO_CLEAN      = "                                                                             ";
     public static final String  ICON_FILENAME   = "icon.png";
+    public static final int     RND_STR_LENGTH  = 32;
+    public static final String  CIPHER_ALGOITHM = "AES";
 }
