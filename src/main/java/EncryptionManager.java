@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,13 +48,14 @@ public class EncryptionManager {
             parts.put(idB, new BASE64Decoder().decodeBuffer(shareB));
             return new String(scheme.join(parts), StandardCharsets.UTF_8);
         } catch (Exception e) {
+            e.printStackTrace();
             return "ERROR";
         }
     }
 
     public static String encrypt(String str, String keyStr) {
         try {
-            Key key = new SecretKeySpec(ensureKeyStrLength(keyStr).getBytes(StandardCharsets.UTF_8), Constants.CIPHER_ALGOITHM);
+            Key key = new SecretKeySpec(ensureKeyStrLength(keyStr), Constants.CIPHER_ALGOITHM);
             Cipher cipher = Cipher.getInstance(Constants.CIPHER_ALGOITHM);
             cipher.init(Cipher.ENCRYPT_MODE, key);
             return new BASE64Encoder().encode(cipher.doFinal(str.getBytes(StandardCharsets.UTF_8)));
@@ -65,7 +67,7 @@ public class EncryptionManager {
 
     public static String decrypt(String str, String keyStr) {
         try {
-            Key key = new SecretKeySpec(ensureKeyStrLength(keyStr).getBytes(StandardCharsets.UTF_8), Constants.CIPHER_ALGOITHM);
+            Key key = new SecretKeySpec(ensureKeyStrLength(keyStr), Constants.CIPHER_ALGOITHM);
             Cipher cipher = Cipher.getInstance(Constants.CIPHER_ALGOITHM);
             cipher.init(Cipher.DECRYPT_MODE, key);
             return new String(cipher.doFinal(new BASE64Decoder().decodeBuffer(str)), StandardCharsets.UTF_8);
@@ -75,8 +77,8 @@ public class EncryptionManager {
         }
     }
 
-    private static String ensureKeyStrLength(String keyStr) {
-        return String.join(" ", Collections.nCopies(Constants.RND_STR_LENGTH + 1, keyStr)).substring(0, Constants.RND_STR_LENGTH);
+    private static byte[] ensureKeyStrLength(String keyStr) {
+        return Arrays.copyOfRange(String.join(" ", Collections.nCopies(Constants.RND_STR_LENGTH + 1, keyStr)).getBytes(StandardCharsets.UTF_8), 0, Constants.RND_STR_LENGTH);
     }
 
 }
