@@ -7,7 +7,8 @@ repositories {
 }
 
 dependencies {
-    compile group: "com.codahale", name: "shamir", version: "0.7.0"
+    implementation group: "com.codahale", name: "shamir", version: "0.7.0"
+    implementation group: "com.google.protobuf", name: "protobuf-java", version: "3.17.3"
     implementation fileTree(dir: "libs", include: ["*.jar"])
 }
 

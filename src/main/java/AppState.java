@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.List;
 
 import javax.swing.JPasswordField;
@@ -42,13 +44,20 @@ public class AppState {
 
     /* called when we open and read an encrypted file */
     public void readFromFile(File file, List<JTextField> questionList, JTextArea secretText) {
-        questionList.get(0).setText("read question1 from file");
-        questionList.get(1).setText("read question2 from file");
-        questionList.get(2).setText("read question3 from file");
-        this.encryptedKey1 = "read encryptedKey1 from file";
-        this.encryptedKey2 = "read encryptedKey2 from file";
-        this.encryptedKey3 = "read encryptedKey3 from file";
-        this.encryptedContent = "read encryptedContent from file";
+        try {
+            ThreeQuestionsTxtFileProtos.ThreeQuestionsTxtFileMsg.Builder inputMsg = ThreeQuestionsTxtFileProtos.ThreeQuestionsTxtFileMsg.newBuilder();
+            inputMsg.mergeFrom(new FileInputStream(file.getAbsolutePath()));
+            questionList.get(0).setText(inputMsg.getQuestion1());
+            questionList.get(1).setText(inputMsg.getQuestion2());
+            questionList.get(2).setText(inputMsg.getQuestion3());
+            this.encryptedKey1 = inputMsg.getEncryptedKey1();
+            this.encryptedKey2 = inputMsg.getEncryptedKey2();
+            this.encryptedKey3 = inputMsg.getEncryptedKey3();
+            this.encryptedContent = inputMsg.getEncryptedContent();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
         this.canDecrypt = true;
         this.canSave = false;
         secretText.setText(String.format("answer the questions to decrypt and see the content saved in %s", file.getAbsolutePath()));
@@ -56,15 +65,24 @@ public class AppState {
 
     /* called when we want to encrypt and save the file */
     public void saveToFile(File file, List<JTextField> questionList, List<JPasswordField> answerList, JTextArea secretText) {
-        // save questionList.get(0) to file
-        // save questionList.get(1) to file
-        // save questionList.get(2) to file
-        String secret = EncryptionManager.generateRandomString();
-        List<String> threeShares = EncryptionManager.getThreeSplitShares(secret);
-        this.encryptedKey1 = EncryptionManager.encrypt(threeShares.get(0), String.valueOf(answerList.get(0).getPassword()));
-        this.encryptedKey2 = EncryptionManager.encrypt(threeShares.get(1), String.valueOf(answerList.get(1).getPassword()));
-        this.encryptedKey3 = EncryptionManager.encrypt(threeShares.get(2), String.valueOf(answerList.get(2).getPassword()));
-        this.encryptedContent = EncryptionManager.encrypt(secretText.getText(), secret);
+        try {
+            ThreeQuestionsTxtFileProtos.ThreeQuestionsTxtFileMsg.Builder outputMsg = ThreeQuestionsTxtFileProtos.ThreeQuestionsTxtFileMsg.newBuilder();
+            outputMsg.setQuestion1(questionList.get(0).getText());
+            outputMsg.setQuestion2(questionList.get(1).getText());
+            outputMsg.setQuestion3(questionList.get(2).getText());
+            String secret = EncryptionManager.generateRandomString();
+            List<String> threeShares = EncryptionManager.getThreeSplitShares(secret);
+            outputMsg.setEncryptedKey1(this.encryptedKey1 = EncryptionManager.encrypt(threeShares.get(0), String.valueOf(answerList.get(0).getPassword())));
+            outputMsg.setEncryptedKey2(this.encryptedKey2 = EncryptionManager.encrypt(threeShares.get(1), String.valueOf(answerList.get(1).getPassword())));
+            outputMsg.setEncryptedKey3(this.encryptedKey3 = EncryptionManager.encrypt(threeShares.get(2), String.valueOf(answerList.get(2).getPassword())));
+            outputMsg.setEncryptedContent(this.encryptedContent = EncryptionManager.encrypt(secretText.getText(), secret));
+            FileOutputStream outputStream = new FileOutputStream(file.getAbsolutePath());
+            outputMsg.build().writeTo(outputStream);
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
         this.canDecrypt = true;
         this.canSave = false;
         secretText.setText(String.format("answer the questions to decrypt and see the content saved in %s", file.getAbsolutePath()));

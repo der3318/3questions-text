@@ -1,0 +1,12 @@
+syntax = "proto2";
+option java_outer_classname = "ThreeQuestionsTxtFileProtos";
+
+message ThreeQuestionsTxtFileMsg {
+    required string question1 = 1;
+    required string question2 = 2;
+    required string question3 = 3;
+    required string encryptedKey1 = 4;
+    required string encryptedKey2 = 5;
+    required string encryptedKey3 = 6;
+    required string encryptedContent = 7;
+}
