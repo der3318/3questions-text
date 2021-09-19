@@ -15,7 +15,7 @@ public class Constants {
     public static final String  QUESTION_2      = "question #2";
     public static final String  QUESTION_3      = "question #3";
     public static final int     QA_WIDTH        = 10;
-    public static final int     SECRET_TXT_ROW  = 30;
+    public static final int     SECRET_TXT_ROW  = 25;
     public static final int     SECRET_TXT_COL  = 60;
     public static final String  DECRYPT_DESC    = "Decrypt";
     public static final int     DECRYPT_HEIGHT  = 20;
